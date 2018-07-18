@@ -1,0 +1,5 @@
+- name: testing
+  hosts: all
+  tasks:
+      - name: running openshift installation from bastion
+        shell: nsible-playbook -i /root/allinone-Slave.yaml /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml -vv
