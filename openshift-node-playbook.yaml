@@ -1,0 +1,78 @@
+---
+- name: openshift pre
+  hosts: openshift
+  vars:
+    - redhat_user: asafh@redhat.com
+    - redhat_user_password: Copper123
+    - redhat_pool_id: 8a85f98c60c2c2b40160c31904b30447
+    - docker_version: docker-1.12.6
+  tasks:
+    - name: Host Registration
+      redhat_subscription:
+        state: present
+        username: "{{ redhat_user }}"
+        password: "{{ redhat_user_password }}"
+        pool_ids: "{{ redhat_pool_id }}"
+
+    - name: Disable all repositories [dirty, using shell module]
+      shell: subscription-manager repos --disable="*"
+
+    - name: Enable required repositories [dirty, using shell module]- 
+      shell: subscription-manager repos --enable="{{item}}"
+      with_items: 
+        - rhel-7-server-rpms
+        - rhel-7-server-extras-rpms
+        - rhel-7-server-ose-3.7-rpms
+        - rhel-7-fast-datapath-rpms
+
+    - name: Installing base packages using yum
+      yum:
+        name: "{{ item }}"
+        state: latest
+      with_items: 
+        - wget 
+        - git 
+        - net-tools 
+        - bind-utils 
+        - yum-utils 
+        - iptables-services 
+        - bridge-utils 
+        - bash-completion 
+        - kexec-tools 
+        - sos 
+        - psacct
+
+    - name: update system
+      yum:
+        name: '*'
+        state: latest
+
+    - name: Installing specific version of docker
+      yum:
+        name: "{{ docker_version }}"
+        state: present
+      notify: restart docker
+
+    - name: Copy docker-storage-setup to the host
+      copy:
+        src: ./docker-storage-setup
+        dest: /etc/sysconfig/docker-storage-setup
+      notify: docker-storage-setup
+
+    - name: enable docker
+      service:
+        name: docker
+        enabled: true
+
+  handlers:
+    - name: docker-storage-setup
+      shell: docker-storage-setup
+
+    - name: restart docker
+      service:
+        name: docker
+        state: restarted
+    
+
+
+...

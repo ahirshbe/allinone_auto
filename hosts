@@ -1,0 +1,2 @@
+[openshift]
+10.35.76.136 ansible_user=root

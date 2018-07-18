@@ -1,0 +1,57 @@
+---
+- name: setting up quay
+  hosts: openshift
+  vars:
+    - redhat_user: asafh@redhat.com
+    - redhat_user_password: Copper123
+  tasks:
+    - name: Copy Quay config files
+      copy:
+        src: ./quay-resources/
+        dest: /root/quay/
+
+    - name: Create Openshift namespace quay-enterprise [dirty, using shell camodule]
+      shell: kubectl create -f /root/quay/quay-enterprise-namespace.yml  
+
+    - name: configure anyuid for user default  [dirty, using shell module]
+      shell: oadm policy add-scc-to-user anyuid system:serviceaccount:quay-enterprise:default
+
+    - name: Create Openshift secrets for Quay.io [dirty, using shell module]
+      shell: kubectl create -f /root/quay/ahirshbe-pull-secret -n quay-enterprise
+    
+    - name: Create Openshift RBAC service token [dirty, using shell module]
+      shell: kubectl create -f /root/quay/quay-servicetoken-role-k8s1-6.yaml -n quay-enterprise
+  
+    - name: Create Openshift RBAC role binding [dirty, using shell module]
+      shell: kubectl create -f /root/quay/quay-servicetoken-role-binding-k8s1-6.yaml -n quay-enterprise
+    
+    - name: Deploy Quay on openshift [dirty, using shell module]
+      shell: kubectl create -f /root/quay/quay-enterprise-config-secret.yml -f /root/quay/quay-enterprise-redis.yml -f /root/quay/quay-enterprise-app-rc.yml -n quay-enterprise
+
+    - name: Create Openshift nodeport for quay  [dirty, using shell module]
+      shell: kubectl create -f /root/quay/quay-enterprise-service-nodeport.yml 
+    
+    - name: fixing redis port [dirty, using shell module]
+      shell: oc delete svc quay-enterprise-redis -n quay-enterprise;sleep 10
+
+    - name: Create Openshift nodeport for redis [dirty, using shell module]
+      shell: kubectl create -f /root/quay/quay-enterprise-service-redis-nodeport.yml
+
+    - name: pull Postgresql image 
+      shell: docker pull docker.io/postgres
+    
+    - name: Create Openshift namespace postgres [dirty, using shell module]
+      shell: oc new-project postgres
+    
+    - name: run containers as root [dirty, using shell module]
+      shell: oadm policy add-scc-to-user anyuid system:serviceaccount:postgres:default
+    
+    - name: Create postgres pod [dirty, using shell module]
+      shell: oc new-app docker.io/postgres -e POSTGRES_USER=quay -e POSTGRES_PASSWORD=quay -e POSTGRES_DB=quay -n postgres
+   
+    - name: fixing postgres port [dirty, using shell module]
+      shell: oc delete svc postgres -n postgres
+
+    - name: Create Openshift nodeport for postgres [dirty, using shell module]
+      shell: kubectl create -f /root/quay/postgresql-service-nodeport.yml
+...

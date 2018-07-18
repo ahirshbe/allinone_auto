@@ -1,0 +1,66 @@
+# Create an OSEv3 group that contains the masters and nodes groups
+[OSEv3:children]
+masters
+nodes
+etcd
+#glusterfs
+
+# Set variables common for all OSEv3 hosts
+[OSEv3:vars]
+
+# SSH user, this user should allow ssh based auth without requiring a password
+ansible_ssh_user=root
+
+# If ansible_ssh_user is not root, ansible_become must be set to true
+ansible_become=true
+
+# Configuring registry
+oreg_url=registry.access.redhat.com/openshift3/ose-${component}:${version}
+openshift_examples_modify_imagestreams=true
+
+# htpasswd auth
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
+
+# deployment type
+deployment_type=openshift-enterprise
+
+# We need a wildcard DNS setup for our public access to services
+openshift_master_default_subdomain=example.sales.lab.tlv.redhat.com
+
+# uncomment the following to enable htpasswd authentication; defaults to DenyAllPasswordIdentityProvider
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
+
+# Comment the lines below to disable metrics for the cluster
+openshift_hosted_metrics_deploy=false
+#openshift_hosted_metrics_storage_kind=dynamic
+
+# Prometheus
+openshift_hosted_prometheus_deploy=false
+#openshift_prometheus_node_selector={"region":"primary"}
+#openshift_prometheus_storage_kind=dynamic
+#openshift_prometheus_alertmanager_storage_kind=dynamic
+#openshift_prometheus_alertbuffer_storage_kind=dynamic
+
+# Comment the lines below to disable logging for the cluster
+openshift_hosted_logging_deploy=false
+#openshift_hosted_logging_storage_kind=dynamic
+#openshift_logging_es_cluster_size=1
+#disable checks
+openshift_disable_check=package_version,memory_availability,docker_storage,docker_storage_driver
+
+# AllInOne settings
+openshift_router_selector='region=primary'
+openshift_registry_selector='region=primary'
+template_service_broker_selector={'region': 'primary'}
+
+# Create the masters host group.
+[masters]
+10.35.76.134 openshift_public_hostname=redhat-raanana.com
+
+# host group for etcd
+[etcd]
+10.35.76.134
+
+# host group for nodes, includes region info
+[nodes]
+10.35.76.134 openshift_node_labels="{'region': 'primary', 'zone': 'east'}" openshift_schedulable=true
