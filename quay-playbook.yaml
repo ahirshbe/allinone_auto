@@ -1,6 +1,6 @@
 ---
 - name: setting up quay
-  hosts: openshift
+  hosts: all
   vars:
     - redhat_user: asafh@redhat.com
     - redhat_user_password: Copper123

@@ -1,0 +1,7 @@
+---
+- name: check host connectivity
+  hosts: all
+  tasks:
+      - name: using ping module
+        ping:
+
