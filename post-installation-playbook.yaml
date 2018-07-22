@@ -1,9 +1,21 @@
 ---
 - name: post installation
   hosts: all
+  gather_facts: no
   tasks:
     - name: setting admin user
       shell: htpasswd -b /etc/origin/master/htpasswd admin admin
 
     - name: give privileges to admin
       shell: oadm policy add-cluster-role-to-user cluster-admins admin; oadm policy add-cluster-role-to-user admin admin
+
+    - name: download pip 
+      get_url:
+        url: https://bootstrap.pypa.io/get-pip.py
+        dest: /tmp/
+    
+    - name: install pip
+      shell: python /tmp/get-pip.py
+    
+    - name: pip install openshift 
+      shell: pip install --ignore-installed openshift

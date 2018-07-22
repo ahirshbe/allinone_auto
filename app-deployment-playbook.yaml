@@ -1,0 +1,20 @@
+---
+- name: deploy application
+  hosts: openshift
+  vars:
+    - openshift_namespace: "production"
+    - git_repo: http://gogs-cicd.apps.openshift3master.sales.lab.tlv.redhat.com/developer/django-ex.git
+  gather_facts: no
+  tasks:
+    - name: Create a Openshift project
+      k8s_raw:
+        name: "{{ openshift_namespace }}"
+        api_version: v1
+        kind: Namespace
+        state: present
+
+#    - name: S2I build application from git
+#      shell: oc new-app "{{ git_repo }}"
+
+...
+

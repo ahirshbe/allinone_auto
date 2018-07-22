@@ -1,9 +1,10 @@
 ---
 - name: setting up quay
-  hosts: all
+  hosts: openshift
   vars:
     - redhat_user: asafh@redhat.com
     - redhat_user_password: Copper123
+  gather_facts: no
   tasks:
     - name: Copy Quay config files
       copy:

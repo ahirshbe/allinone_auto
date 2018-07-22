@@ -1,6 +1,7 @@
 ---
 - name: check host connectivity
   hosts: all
+  gather_facts: no
   tasks:
       - name: using ping module
         ping:

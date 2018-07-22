@@ -6,6 +6,7 @@
     - redhat_user_password: Copper123
     - redhat_pool_id: 8a85f98c60c2c2b40160c31904b30447
     - docker_version: docker-1.12.6
+  gather_facts: no
   tasks:
     - name: Host Registration
       redhat_subscription:
