@@ -3,3 +3,6 @@
 
 [bastion]
 10.35.76.134 ansible_user=root
+
+[master]
+10.35.76.135 ansible_user=root

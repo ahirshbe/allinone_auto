@@ -19,3 +19,7 @@
     
     - name: pip install openshift 
       shell: pip install --ignore-installed openshift
+
+    - copy:
+        src: ./resolv.conf
+        dest: /etc/resolv.conf
