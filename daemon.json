@@ -1,0 +1,3 @@
+{
+    "insecure-registries" : [ "andromeda07.sales.lab.tlv.redhat.com:30080","andromeda08.sales.lab.tlv.redhat.com:30080" ]
+}

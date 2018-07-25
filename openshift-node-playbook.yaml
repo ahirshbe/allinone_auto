@@ -64,8 +64,8 @@
       copy:
         src: ./daemon.json
         dest: /etc/docker/daemon.json
-      notify: docker-storage-setup
-      
+      notify: restart docker 
+
     - name: enable docker
       service:
         name: docker
