@@ -60,6 +60,12 @@
         dest: /etc/sysconfig/docker-storage-setup
       notify: docker-storage-setup
 
+    - name: Copy docker daemon config
+      copy:
+        src: ./daemon.json
+        dest: /etc/docker/daemon.json
+      notify: docker-storage-setup
+      
     - name: enable docker
       service:
         name: docker
