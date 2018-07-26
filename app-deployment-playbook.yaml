@@ -2,19 +2,18 @@
 - name: deploy application
   hosts: openshift
   vars:
-    - openshift_namespace: "production"
-    - git_repo: http://gogs-cicd.apps.openshift3master.sales.lab.tlv.redhat.com/developer/django-ex.git
-  gather_facts: no
+    - openshift_namespace: "http"
+    - quay_repo: "andromeda07.sales.lab.tlv.redhat.com:30080/quay/nginx-hello"
   tasks:
-    - name: Create a Openshift project
+    - name: Create a k8s namespace
       k8s_raw:
         name: "{{ openshift_namespace }}"
         api_version: v1
         kind: Namespace
         state: present
 
-#    - name: S2I build application from git
-#      shell: oc new-app "{{ git_repo }}"
-
-...
-
+    - name: build application
+      shell: oc process --template=httpd-example --param=SOURCE_REPOSITORY_URL=https://github.com/openshift/httpd-ex.git | oc create -f - -n http
+    
+   # - name: creating nginx application
+   #   shell: oc new-app --docker-image="{{ quay_repo }}" -n "{{ openshift_namespace }}"

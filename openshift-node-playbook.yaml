@@ -1,6 +1,6 @@
 ---
 - name: openshift pre
-  hosts: master
+  hosts: all
   vars:
     - redhat_user: asafh@redhat.com
     - redhat_user_password: Copper123
