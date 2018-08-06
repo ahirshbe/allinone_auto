@@ -1,11 +1,11 @@
 ---
 - name: openshift pre
-  hosts: all
+  hosts: openshift
   vars:
     - redhat_user: asafh@redhat.com
     - redhat_user_password: Copper123
     - redhat_pool_id: 8a85f98c60c2c2b40160c31904b30447
-    - docker_version: docker-1.12.6
+    - docker_version: docker-1.13.1
   gather_facts: no
   tasks:
     - name: Host Registration
@@ -23,8 +23,9 @@
       with_items: 
         - rhel-7-server-rpms
         - rhel-7-server-extras-rpms
-        - rhel-7-server-ose-3.7-rpms
+        - rhel-7-server-ose-3.10-rpms
         - rhel-7-fast-datapath-rpms
+        - rhel-7-server-ansible-2.4-rpms
 
     - name: Installing base packages using yum
       yum:
@@ -42,6 +43,7 @@
         - kexec-tools 
         - sos 
         - psacct
+        - ceph-common
 
     - name: update system
       yum:
