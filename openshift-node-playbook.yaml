@@ -2,9 +2,9 @@
 - name: openshift pre
   hosts: all
   vars:
-    - redhat_user: asafh@redhat.com
-    - redhat_user_password: Copper123
-    - redhat_pool_id: 8a85f98c60c2c2b40160c31904b30447
+    - redhat_user: 
+    - redhat_user_password: 
+    - redhat_pool_id: 
     - docker_version: docker-1.12.6
   gather_facts: no
   tasks:
