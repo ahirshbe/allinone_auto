@@ -1,0 +1,97 @@
+# Create an OSEv3 group that contains the masters and nodes groups
+[OSEv3:children]
+masters
+nodes
+etcd
+
+# Set variables common for all OSEv3 hosts
+[OSEv3:vars]
+
+# SSH user, this user should allow ssh based auth without requiring a password
+ansible_ssh_user=root
+
+# If ansible_ssh_user is not root, ansible_become must be set to true
+ansible_become=true
+
+# change to firewalld
+os_firewall_use_firewalld=True
+
+# Configuring registry
+oreg_url=registry.access.redhat.com/openshift3/ose-${component}:${version}
+openshift_examples_modify_imagestreams=true
+openshift_hosted_registry_storage_kind=nfs
+openshift_hosted_registry_storage_access_modes=['ReadWriteMany']
+openshift_hosted_registry_storage_host=10.35.76.134
+openshift_hosted_registry_storage_nfs_directory=/nfs-exp
+openshift_hosted_registry_storage_volume_name=slave-registry
+openshift_hosted_registry_storage_volume_size=20Gi
+
+# htpasswd auth
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
+
+# deployment type
+deployment_type=openshift-enterprise
+
+# cluster hostname
+openshift_master_cluster_hostname=openshift3slave.sales.lab.tlv.redhat.com
+
+# We need a wildcard DNS setup for our public access to services
+openshift_master_default_subdomain=apps.openshift3slave.sales.lab.tlv.redhat.com
+
+# uncomment the following to enable htpasswd authentication; defaults to DenyAllPasswordIdentityProvider
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
+
+# Comment the lines below to disable metrics for the cluster
+openshift_hosted_metrics_deploy=true
+openshift_metrics_storage_kind=nfs
+openshift_metrics_storage_access_modes=['ReadWriteOnce']
+openshift_metrics_storage_host=10.35.76.134
+openshift_metrics_storage_nfs_directory=/nfs-exp
+openshift_metrics_storage_volume_name=slave-metrics
+openshift_metrics_storage_volume_size=50Gi
+
+# Prometheus
+openshift_hosted_prometheus_deploy=false
+#openshift_prometheus_node_selector={"region":"primary"}
+#openshift_prometheus_storage_kind=dynamic
+#openshift_prometheus_alertmanager_storage_kind=dynamic
+#openshift_prometheus_alertbuffer_storage_kind=dynamic
+
+# Comment the lines below to disable logging for the cluster
+openshift_hosted_logging_deploy=True
+openshift_logging_storage_kind=nfs
+openshift_logging_storage_access_modes=['ReadWriteOnce']
+openshift_logging_storage_host=10.35.76.134
+openshift_logging_storage_nfs_directory=/nfs-exp
+openshift_logging_storage_volume_name=slave-logging
+openshift_logging_storage_volume_size=55Gi
+
+# Ansible Service Broker
+openshift_hosted_etcd_storage_kind=nfs
+openshift_hosted_etcd_storage_nfs_options="*(rw,root_squash,sync,no_wdelay)"
+openshift_hosted_etcd_storage_nfs_directory=/nfs-exp
+openshift_hosted_etcd_storage_volume_name=slave-etcd
+openshift_hosted_etcd_storage_host=10.35.76.134
+openshift_hosted_etcd_storage_access_modes=["ReadWriteOnce"]
+openshift_hosted_etcd_storage_volume_size=5G
+openshift_hosted_etcd_storage_labels={'storage': 'etcd'}
+
+#disable checks
+openshift_disable_check=memory_availability,package_version,memory_availability,docker_storage,docker_storage_driver
+
+# AllInOne settings
+openshift_router_selector='region=primary'
+openshift_registry_selector='region=primary'
+template_service_broker_selector={'region': 'primary'}
+
+# Create the masters host group.
+[masters]
+
+
+# host group for etcd
+[etcd]
+
+
+# host group for nodes, includes region info
+[nodes]
+ openshift_node_labels="{'region': 'primary', 'zone': 'east'}" openshift_schedulable=true
